@@ -54,7 +54,7 @@ if int(torchvision.__version__.split('.')[1]) < 5:
         return [
             int(math.floor(input.size(i + 2) * scale_factors[i])) for i in range(dim)
         ]
-elif float(torchvision.__version__[:3]) < 0.7:
+elif int(torchvision.__version__.split('.')[1]) < 7:
     from torchvision.ops import _new_empty_tensor
     from torchvision.ops.misc import _output_size
 
