@@ -11,8 +11,9 @@ from torchvision.io import read_image
 import datasets.transforms as T
 from pathlib import Path
 from torch.utils.data import Dataset
+import xml.etree.ElementTree as ET
 
-def make_coco_transforms(image_set):
+def make_hod_transforms(image_set):
 
     normalize = T.Compose([
         T.ToTensor(),
@@ -77,7 +78,7 @@ class HODataset(Dataset):
             label = self.target_transform(label)
         return image, target
 
-    def read_xml(file, idx):
+    def read_xml(self, file, idx):
         with open(file,'r') as fp:
           string_xml = fp.read()
           xml = ET.ElementTree(ET.fromstring(string_xml))
@@ -103,7 +104,8 @@ class HODataset(Dataset):
         idx = 0
         with open(annotations_file, 'r') as f:
           for line in f:
-            img, label = read_xml(line, idx)
+            xml_path = line.replace('\n', '')
+            img, label = self.read_xml(xml_path, idx)
             imgs.append(img)
             labels.append(label)
             idx+=1
