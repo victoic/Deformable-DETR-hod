@@ -46,7 +46,7 @@ def make_hod_transforms(image_set):
 
 def build(image_set, args):
     root = Path(args.coco_path)
-    assert root.exists(), f'provided COCO path {root} does not exist'
+    assert root.exists(), f'provided HOD path {root} does not exist'
     mode = 'instances'
     PATHS = {
         "train": (root, root / f'hod_anns_train.txt'),
@@ -58,8 +58,10 @@ def build(image_set, args):
     return dataset
 
 class HODataset(Dataset):
-    def __init__(self, annotations_file, img_dir, transform=None, target_transform=None):
+    def __init__(self, annotations_file, img_dir, coco=False, transform=None, target_transform=None):
         self.images_paths, self.labels = self.read_annotations(annotations_file)
+        self.coco = COCO(annotations_file)
+        self.ids = list(sorted(self.coco.imgs.keys()))
         self.img_dir = img_dir
         self.transform = transform
         self.target_transform = target_transform

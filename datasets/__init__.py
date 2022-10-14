@@ -9,6 +9,7 @@
 
 import torch.utils.data
 from .torchvision_datasets import CocoDetection
+from hod import HODataset
 
 from .coco import build as build_coco
 from .hod import build as build_hod
@@ -20,7 +21,7 @@ def get_coco_api_from_dataset(dataset):
         #     break
         if isinstance(dataset, torch.utils.data.Subset):
             dataset = dataset.dataset
-    if isinstance(dataset, CocoDetection):
+    if isinstance(dataset, CocoDetection) or isinstance(dataset, HODataset):
         return dataset.coco
 
 

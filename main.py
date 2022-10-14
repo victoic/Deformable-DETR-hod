@@ -213,7 +213,9 @@ def main(args):
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
         model_without_ddp = model.module
 
-    if args.dataset_file == "coco_panoptic":
+    if args.dataset_file == 'hod':
+        base_ds = get_coco_api_from_dataset(dataset_val)
+    elif args.dataset_file == "coco_panoptic":
         # We also evaluate AP during panoptic training, on original coco DS
         coco_val = datasets.coco.build("val", args)
         base_ds = get_coco_api_from_dataset(coco_val)
