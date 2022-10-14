@@ -77,7 +77,7 @@ class HODataset(VisionDataset):
             self.cache = {}
             self.cache_images()
 
-        self.prepare = ConvertCocoPolysToMask(return_masks)
+        self.prepare = ConvertCocoPolysToMask()
 
     def __len__(self):
         return len(self.ids)
