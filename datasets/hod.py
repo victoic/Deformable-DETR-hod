@@ -80,15 +80,22 @@ class HODataset(Dataset):
         return len(self.images_paths)
 
     def __getitem__(self, idx):
-        img_path = os.path.join(self.img_dir, self.images_paths[idx])
-        image = read_image(idx, img_path)
-        label = self.labels[idx]
-        image, target = self.to_coco(image, label)
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            label = self.target_transform(label)
-        return image, target
+        img_id = self.ids[idx]
+        target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
+        path = coco.loadImgs(img_id)[0]['file_name']
+        img = self.get_image(path)
+        if self.transforms is not None:
+            img, target = self.transforms(img, target)
+
+        return img, target
+
+    def get_image(self, path):
+        if self.cache_mode:
+            if path not in self.cache.keys():
+                with open(os.path.join(self.root, path), 'rb') as f:
+                    self.cache[path] = f.read()
+            return Image.open(BytesIO(self.cache[path])).convert('RGB')
+        return Image.open(os.path.join(self.root, path)).convert('RGB')
 
     def read_xml(self, file, idx):
         with open(file,'r') as fp:
