@@ -13,6 +13,7 @@ from pathlib import Path
 from torch.utils.data import Dataset
 import xml.etree.ElementTree as ET
 from pycocotools.coco import COCO
+from PIL import Image
 
 def make_hod_transforms(image_set):
 
@@ -82,7 +83,7 @@ class HODataset(Dataset):
     def __getitem__(self, idx):
         img_id = self.ids[idx]
         target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
-        path = coco.loadImgs(img_id)[0]['file_name']
+        path = self.coco.loadImgs(img_id)[0]['file_name']
         img = self.get_image(path)
         if self.transforms is not None:
             img, target = self.transforms(img, target)
