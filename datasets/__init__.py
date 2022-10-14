@@ -9,7 +9,7 @@
 
 import torch.utils.data
 from .torchvision_datasets import CocoDetection
-from hod import HODataset
+from .hod import HODataset
 
 from .coco import build as build_coco
 from .hod import build as build_hod
