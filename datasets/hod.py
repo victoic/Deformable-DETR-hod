@@ -12,6 +12,7 @@ import datasets.transforms as T
 from pathlib import Path
 from torch.utils.data import Dataset
 import xml.etree.ElementTree as ET
+from pycocotools.coco import COCO
 
 def make_hod_transforms(image_set):
 
@@ -45,7 +46,7 @@ def make_hod_transforms(image_set):
     raise ValueError(f'unknown {image_set}')
 
 def build(image_set, args):
-    root = Path(args.coco_path)
+    root = Path(args.dataset_path)
     assert root.exists(), f'provided HOD path {root} does not exist'
     mode = 'instances'
     PATHS = {
@@ -59,8 +60,17 @@ def build(image_set, args):
 
 class HODataset(Dataset):
     def __init__(self, annotations_file, img_dir, coco=False, transform=None, target_transform=None):
-        self.images_paths, self.labels = self.read_annotations(annotations_file)
+        self.images_paths = []
+        self.labels = []
         self.coco = COCO(annotations_file)
+        for img in self.coco.loadImgs(self.coco.getImgIds()):
+            annotations = []
+            for ann in self.coco.loadAnns(self.coco.getAnnIds(img['id'])):
+                annotation = {'category_id': ann['category_id'], 'area':ann['area'], 'bbox':ann['bbox']}
+                annotations.append(annotation)
+            target = {'image_id': img['id'], 'annotations': annotations}
+            self.images_paths.append(img['file_name'])
+            self.labels.append(target)
         self.ids = list(sorted(self.coco.imgs.keys()))
         self.img_dir = img_dir
         self.transform = transform
@@ -106,7 +116,7 @@ class HODataset(Dataset):
         idx = 0
         with open(annotations_file, 'r') as f:
           for line in f:
-            xml_path = line.replace('\n', '')
+            xml_path = line.replace('\n', '').replace('\\','/')
             img, label = self.read_xml(xml_path, idx)
             imgs.append(img)
             labels.append(label)
