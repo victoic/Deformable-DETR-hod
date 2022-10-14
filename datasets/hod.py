@@ -6,6 +6,7 @@ Module providing access to the class for the House Object Dangerousness
 detection and classification dataset.
 """
 
+import torch
 from torchvision.io import read_image
 import datasets.transforms as T
 from torch.utils.data import Dataset
