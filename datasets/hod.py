@@ -6,14 +6,17 @@ Module providing access to the class for the House Object Dangerousness
 detection and classification dataset.
 """
 
-import os
 from torchvision.io import read_image
 import datasets.transforms as T
-from pathlib import Path
 from torch.utils.data import Dataset
-import xml.etree.ElementTree as ET
+from torchvision.datasets.vision import VisionDataset
+
 from pycocotools.coco import COCO
+
+import os
+import xml.etree.ElementTree as ET
 from PIL import Image
+from pathlib import Path
 from util.misc import get_local_rank, get_local_size
 
 def make_hod_transforms(image_set):
@@ -47,12 +50,13 @@ def make_hod_transforms(image_set):
 
     raise ValueError(f'unknown {image_set}')
 
-class HODataset(Dataset):
-    def __init__(self, annotations_file, img_dir, coco=False, transform=None, 
-        target_transform=None, cache_mode=False, local_rank=0, local_size=1):
+class HODataset(VisionDataset):
+    def __init__(self, img_dir, ann_file, transform=None, target_transform=None, transforms=None,
+        cache_mode=False, local_rank=0, local_size=1):
+        super(HODataset, self).__init__(img_dir, transforms, transform, target_transform)
+        self.coco = COCO(ann_file)
         #self.images_paths = []
         #self.labels = []
-        self.coco = COCO(annotations_file)
         # for img in self.coco.loadImgs(self.coco.getImgIds()):
         #     annotations = []
         #     for ann in self.coco.loadAnns(self.coco.getAnnIds(img['id'])):
@@ -174,6 +178,6 @@ def build(image_set, args):
     }
 
     img_folder, ann_file = PATHS[image_set]
-    dataset = HODataset(ann_file, img_folder, transform=make_hod_transforms(image_set),
+    dataset = HODataset(img_folder, ann_file, transforms=make_hod_transforms(image_set),
         cache_mode=args.cache_mode, local_rank=get_local_rank(), local_size=get_local_size())
     return dataset
