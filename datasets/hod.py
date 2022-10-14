@@ -55,7 +55,7 @@ def build(image_set, args):
     }
 
     img_folder, ann_file = PATHS[image_set]
-    dataset = HODataset(ann_file, img_folder, transforms=make_coco_transforms(image_set))
+    dataset = HODataset(ann_file, img_folder, transforms=make_hod_transforms(image_set))
     return dataset
 
 class HODataset(Dataset):
