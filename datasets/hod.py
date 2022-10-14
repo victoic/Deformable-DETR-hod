@@ -85,9 +85,11 @@ class HODataset(VisionDataset):
     def __getitem__(self, idx):
         img_id = self.ids[idx]
         target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
+        target = {'image_id': img_id, 'annotations': target}
         path = self.coco.loadImgs(img_id)[0]['file_name'].replace('\\', '/')
-        print(f'| {self.root} | {path} |')
         img = self.get_image(path)
+        #print(f'| {self.root} | {path} |')
+        
         img, target = self.prepare(img, target)
         if self.transforms is not None:
             img, target = self.transforms(img, target)
