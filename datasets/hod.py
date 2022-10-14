@@ -14,6 +14,7 @@ from torch.utils.data import Dataset
 import xml.etree.ElementTree as ET
 from pycocotools.coco import COCO
 from PIL import Image
+from util.misc import get_local_rank, get_local_size
 
 def make_hod_transforms(image_set):
 
@@ -45,19 +46,6 @@ def make_hod_transforms(image_set):
         ])
 
     raise ValueError(f'unknown {image_set}')
-
-def build(image_set, args):
-    root = Path(args.dataset_path)
-    assert root.exists(), f'provided HOD path {root} does not exist'
-    mode = 'instances'
-    PATHS = {
-        "train": (root, root / f'hod_anns_coco_train.json'),
-        "val": (root, root / f'hod_anns_coco_test.json'),
-    }
-
-    img_folder, ann_file = PATHS[image_set]
-    dataset = HODataset(ann_file, img_folder, transform=make_hod_transforms(image_set))
-    return dataset
 
 class HODataset(Dataset):
     def __init__(self, annotations_file, img_dir, coco=False, transform=None, 
@@ -175,3 +163,17 @@ class HODataset(Dataset):
         target["size"] = torch.as_tensor([int(h), int(w)])
 
         return image, target
+
+def build(image_set, args):
+    root = Path(args.dataset_path)
+    assert root.exists(), f'provided HOD path {root} does not exist'
+    mode = 'instances'
+    PATHS = {
+        "train": (root, root / f'hod_anns_coco_train.json'),
+        "val": (root, root / f'hod_anns_coco_test.json'),
+    }
+
+    img_folder, ann_file = PATHS[image_set]
+    dataset = HODataset(ann_file, img_folder, transform=make_hod_transforms(image_set),
+        cache_mode=args.cache_mode, local_rank=get_local_rank(), local_size=get_local_size())
+    return dataset
