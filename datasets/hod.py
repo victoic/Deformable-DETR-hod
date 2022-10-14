@@ -74,7 +74,7 @@ class HODataset(Dataset):
             self.cache_images()
 
     def __len__(self):
-        return len(self.images_paths)
+        return len(self.ids)
 
     def __getitem__(self, idx):
         img_id = self.ids[idx]
@@ -94,75 +94,75 @@ class HODataset(Dataset):
             return Image.open(BytesIO(self.cache[path])).convert('RGB')
         return Image.open(os.path.join(self.root, path)).convert('RGB')
 
-    def read_xml(self, file, idx):
-        with open(file,'r') as fp:
-          string_xml = fp.read()
-          xml = ET.ElementTree(ET.fromstring(string_xml))
-          img_path = xml.find('path').text
-          rois = xml.findall('object')
-          target = {'image_id': idx, 'annotations': []}
-          for roi in rois:
-            label = 1 if roi.find('name').text == 'unsafe' else 0
-            xmin = int(roi.find('bndbox').find('xmin').text)
-            ymin = int(roi.find('bndbox').find('ymin').text)
-            xmax = int(roi.find('bndbox').find('xmax').text)
-            ymax = int(roi.find('bndbox').find('ymax').text)
-            width = xmax - xmin
-            height = ymax - ymin
-            area = width * height
-            annotation = {'category_id': label, 'area': area, 'bbox': [xmin, ymin, width, height]}
-            target['annotations'].append(annotation)
-          return img_path, target
+    # def read_xml(self, file, idx):
+    #     with open(file,'r') as fp:
+    #       string_xml = fp.read()
+    #       xml = ET.ElementTree(ET.fromstring(string_xml))
+    #       img_path = xml.find('path').text
+    #       rois = xml.findall('object')
+    #       target = {'image_id': idx, 'annotations': []}
+    #       for roi in rois:
+    #         label = 1 if roi.find('name').text == 'unsafe' else 0
+    #         xmin = int(roi.find('bndbox').find('xmin').text)
+    #         ymin = int(roi.find('bndbox').find('ymin').text)
+    #         xmax = int(roi.find('bndbox').find('xmax').text)
+    #         ymax = int(roi.find('bndbox').find('ymax').text)
+    #         width = xmax - xmin
+    #         height = ymax - ymin
+    #         area = width * height
+    #         annotation = {'category_id': label, 'area': area, 'bbox': [xmin, ymin, width, height]}
+    #         target['annotations'].append(annotation)
+    #       return img_path, target
 
-    def read_annotations(self, annotations_file):
-        imgs = []
-        labels = []
-        idx = 0
-        with open(annotations_file, 'r') as f:
-          for line in f:
-            xml_path = line.replace('\n', '').replace('\\','/')
-            img, label = self.read_xml(xml_path, idx)
-            imgs.append(img)
-            labels.append(label)
-            idx+=1
-        return imgs, labels
+    # def read_annotations(self, annotations_file):
+    #     imgs = []
+    #     labels = []
+    #     idx = 0
+    #     with open(annotations_file, 'r') as f:
+    #       for line in f:
+    #         xml_path = line.replace('\n', '').replace('\\','/')
+    #         img, label = self.read_xml(xml_path, idx)
+    #         imgs.append(img)
+    #         labels.append(label)
+    #         idx+=1
+    #     return imgs, labels
 
-    def to_coco(self, image, target):
-        w, h = image.size
+    # def to_coco(self, image, target):
+    #     w, h = image.size
 
-        image_id = target["image_id"]
-        image_id = torch.tensor([image_id])
+    #     image_id = target["image_id"]
+    #     image_id = torch.tensor([image_id])
 
-        anno = target["annotations"]
+    #     anno = target["annotations"]
 
-        boxes = [obj["bbox"] for obj in anno]
-        # guard against no boxes via resizing
-        boxes = torch.as_tensor(boxes, dtype=torch.float32).reshape(-1, 4)
-        boxes[:, 2:] += boxes[:, :2]
-        boxes[:, 0::2].clamp_(min=0, max=w)
-        boxes[:, 1::2].clamp_(min=0, max=h)
+    #     boxes = [obj["bbox"] for obj in anno]
+    #     # guard against no boxes via resizing
+    #     boxes = torch.as_tensor(boxes, dtype=torch.float32).reshape(-1, 4)
+    #     boxes[:, 2:] += boxes[:, :2]
+    #     boxes[:, 0::2].clamp_(min=0, max=w)
+    #     boxes[:, 1::2].clamp_(min=0, max=h)
 
-        classes = [obj["category_id"] for obj in anno]
-        classes = torch.tensor(classes, dtype=torch.int64)
+    #     classes = [obj["category_id"] for obj in anno]
+    #     classes = torch.tensor(classes, dtype=torch.int64)
 
-        keep = (boxes[:, 3] > boxes[:, 1]) & (boxes[:, 2] > boxes[:, 0])
-        boxes = boxes[keep]
-        classes = classes[keep]
+    #     keep = (boxes[:, 3] > boxes[:, 1]) & (boxes[:, 2] > boxes[:, 0])
+    #     boxes = boxes[keep]
+    #     classes = classes[keep]
 
-        target = {}
-        target["boxes"] = boxes
-        target["labels"] = classes
-        target["image_id"] = image_id
+    #     target = {}
+    #     target["boxes"] = boxes
+    #     target["labels"] = classes
+    #     target["image_id"] = image_id
 
-        area = torch.tensor([obj["area"] for obj in anno])
-        iscrowd = torch.tensor([0 for obj in anno])
-        target["area"] = area[keep]
-        target["iscrowd"] = iscrowd[keep]
+    #     area = torch.tensor([obj["area"] for obj in anno])
+    #     iscrowd = torch.tensor([0 for obj in anno])
+    #     target["area"] = area[keep]
+    #     target["iscrowd"] = iscrowd[keep]
 
-        target["orig_size"] = torch.as_tensor([int(h), int(w)])
-        target["size"] = torch.as_tensor([int(h), int(w)])
+    #     target["orig_size"] = torch.as_tensor([int(h), int(w)])
+    #     target["size"] = torch.as_tensor([int(h), int(w)])
 
-        return image, target
+    #     return image, target
 
 def build(image_set, args):
     root = Path(args.dataset_path)
