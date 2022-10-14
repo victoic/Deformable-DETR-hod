@@ -50,8 +50,8 @@ def build(image_set, args):
     assert root.exists(), f'provided HOD path {root} does not exist'
     mode = 'instances'
     PATHS = {
-        "train": (root, root / f'hod_anns_train.txt'),
-        "val": (root, root / f'hod_anns_test.txt'),
+        "train": (root, root / f'hod_anns_coco_train.json'),
+        "val": (root, root / f'hod_anns_coco_test.json'),
     }
 
     img_folder, ann_file = PATHS[image_set]
