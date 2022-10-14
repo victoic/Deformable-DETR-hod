@@ -60,22 +60,30 @@ def build(image_set, args):
     return dataset
 
 class HODataset(Dataset):
-    def __init__(self, annotations_file, img_dir, coco=False, transform=None, target_transform=None):
-        self.images_paths = []
-        self.labels = []
+    def __init__(self, annotations_file, img_dir, coco=False, transform=None, 
+        target_transform=None, cache_mode=False, local_rank=0, local_size=1):
+        #self.images_paths = []
+        #self.labels = []
         self.coco = COCO(annotations_file)
-        for img in self.coco.loadImgs(self.coco.getImgIds()):
-            annotations = []
-            for ann in self.coco.loadAnns(self.coco.getAnnIds(img['id'])):
-                annotation = {'category_id': ann['category_id'], 'area':ann['area'], 'bbox':ann['bbox']}
-                annotations.append(annotation)
-            target = {'image_id': img['id'], 'annotations': annotations}
-            self.images_paths.append(img['file_name'])
-            self.labels.append(target)
+        # for img in self.coco.loadImgs(self.coco.getImgIds()):
+        #     annotations = []
+        #     for ann in self.coco.loadAnns(self.coco.getAnnIds(img['id'])):
+        #         annotation = {'category_id': ann['category_id'], 'area':ann['area'], 'bbox':ann['bbox']}
+        #         annotations.append(annotation)
+        #     target = {'image_id': img['id'], 'annotations': annotations}
+        #     self.images_paths.append(img['file_name'])
+        #     self.labels.append(target)
         self.ids = list(sorted(self.coco.imgs.keys()))
         self.img_dir = img_dir
         self.transform = transform
         self.target_transform = target_transform
+        
+        self.cache_mode = cache_mode
+        self.local_rank = local_rank
+        self.local_size = local_size
+        if cache_mode:
+            self.cache = {}
+            self.cache_images()
 
     def __len__(self):
         return len(self.images_paths)
