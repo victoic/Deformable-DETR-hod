@@ -84,7 +84,7 @@ class HODataset(VisionDataset):
         img_id = self.ids[idx]
         target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
         path = self.coco.loadImgs(img_id)[0]['file_name']
-        img = self.get_image(path.replace('\\', '/'))
+        img = self.get_image(path.replace('\\', '/').replace(self.root, ''))
         if self.transforms is not None:
             img, target = self.transforms(img, target)
 
