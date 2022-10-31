@@ -1,4 +1,5 @@
 import numpy as np
+from main import main
 class Args:
   def __init__(self):
     self.lr = 2e-4
