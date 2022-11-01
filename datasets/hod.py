@@ -75,7 +75,7 @@ class HODataset(Dataset):
         img_id = self.ids[idx]
         target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
         path = self.coco.loadImgs(img_id)[0]['file_name']
-        print(os.path.join(self.root, path))
+        print(os.path.join(self.img_dir, path))
         img = self.get_image(path)
         if self.transforms is not None:
             img, target = self.transforms(img, target)
@@ -153,8 +153,6 @@ class ConvertCocoPolysToMask(object):
         target["size"] = torch.as_tensor([int(h), int(w)])
 
         return image, target
-
-
 
 def build(image_set, args):
     root = Path(args.dataset_path)
