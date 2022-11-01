@@ -51,9 +51,16 @@ def make_hod_transforms(image_set):
     raise ValueError(f'unknown {image_set}')
 
 class HODataset(Dataset):
-    def __init__(self, annotations_file, img_dir, coco=False, transform=None, target_transform=None):
+    def __init__(self, annotations_file, img_dir, coco=False, transform=None, 
+                target_transform=None, cache_mode=False, local_rank=0, local_size=1):
         self.images_paths = []
         self.labels = []
+        self.cache_mode = cache_mode
+        self.local_rank = local_rank
+        self.local_size = local_size
+        if cache_mode:
+            self.cache = {}
+            self.cache_images()
         self.coco = COCO(annotations_file)
         for img in self.coco.loadImgs(self.coco.getImgIds()):
             annotations = []
@@ -89,6 +96,15 @@ class HODataset(Dataset):
                     self.cache[path] = f.read()
             return Image.open(BytesIO(self.cache[path])).convert('RGB')
         return Image.open(os.path.join(self.root, path)).convert('RGB')
+
+    def cache_images(self):
+        self.cache = {}
+        for index, img_id in zip(tqdm.trange(len(self.ids)), self.ids):
+            if index % self.local_size != self.local_rank:
+                continue
+            path = self.coco.loadImgs(img_id)[0]['file_name']
+            with open(os.path.join(self.root, path), 'rb') as f:
+                self.cache[path] = f.read()
 
 class ConvertCocoPolysToMask(object):
     def __init__(self, return_masks=False):
@@ -163,5 +179,6 @@ def build(image_set, args):
         "val": (root, root / args.val_anns),
     }
     img_folder, ann_file = PATHS[image_set]
-    dataset = HODataset(ann_file, img_folder, transform=make_hod_transforms(image_set))
+    dataset = HODataset(ann_file, img_folder, transform=make_hod_transforms(image_set),
+            cache_mode=args.cache_mode, local_rank=get_local_rank(), local_size=get_local_size())
     return dataset
