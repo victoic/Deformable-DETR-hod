@@ -95,7 +95,7 @@ class HODataset(Dataset):
                 with open(os.path.join(self.root, path), 'rb') as f:
                     self.cache[path] = f.read()
             return Image.open(BytesIO(self.cache[path])).convert('RGB')
-        return Image.open(os.path.join(self.root, path)).convert('RGB')
+        return Image.open(os.path.join(self.img_dir, path)).convert('RGB')
 
     def cache_images(self):
         self.cache = {}
