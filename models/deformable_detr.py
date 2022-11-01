@@ -441,7 +441,7 @@ class MLP(nn.Module):
         return x
 
 
-def build_model(args):
+def build(args):
     num_classes = args.num_classes
     device = torch.device(args.device)
 
