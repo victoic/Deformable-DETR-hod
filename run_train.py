@@ -69,7 +69,7 @@ class Args:
     self.num_classes = 2
 
     self.output_dir = 'checkpoints'
-    self.device = 'cpu'
+    self.device = 'cuda'
     self.seed = 42
     #self.resume = ''
     self.resume = 'checkpoints/checkpoint.pth'
