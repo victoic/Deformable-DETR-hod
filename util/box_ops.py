@@ -58,8 +58,7 @@ def generalized_box_iou(boxes1, boxes2):
     # so do an early check
     print("Printing boxes")
     print(f'Boxes: {len(boxes1)}')
-    for box in boxes1:
-        print('\t', box)
+    print(boxes1)
     
     assert (boxes1[:, 2:] >= boxes1[:, :2]).all()
     assert (boxes2[:, 2:] >= boxes2[:, :2]).all()
