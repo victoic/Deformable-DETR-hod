@@ -7,7 +7,7 @@ class Args:
     self.lr_backbone = 2e-5
     self.lr_linear_proj_names = ['reference_points', 'sampling_offsets']
     self.lr_linear_proj_mult = 0.1
-    self.batch_size = 2
+    self.batch_size = 1
     self.weight_decay = 1e-4
     self.epochs = 50
     self.lr_drop = 40
