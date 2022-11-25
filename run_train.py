@@ -71,8 +71,8 @@ class Args:
     self.output_dir = 'checkpoints'
     self.device = 'cuda'
     self.seed = 42
-    self.resume = ''
-    #self.resume = 'checkpoints/r50_deformable_detr-checkpoint.pth'
+    #self.resume = ''
+    self.resume = 'checkpoints/checkpoint.pth'
     self.start_epoch = 0
     self.eval = False
     self.num_workers = 2
