@@ -57,6 +57,7 @@ def generalized_box_iou(boxes1, boxes2):
     # degenerate boxes gives inf / nan results
     # so do an early check
     print("Printing boxes")
+    print(f'Boxes: {len(boxes1)}')
     for box in boxes1:
         print('\t', box)
     
