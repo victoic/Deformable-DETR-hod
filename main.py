@@ -93,10 +93,10 @@ class Args:
     self.remove_difficult = True
     self.num_classes = 2
 
-    self.output_dir = '/content/gdrive/Shareddrives/HOD/checkpoints'
+    self.output_dir = 'checkpoints'
     self.device = 'cuda'
     self.seed = 42
-    self.resume = '/content/gdrive/Shareddrives/HOD/checkpoints/checkpoint.pth'#''
+    self.resume = 'checkpoints/checkpoint.pth'#''
     #self.resume = 'checkpoints/r50_deformable_detr-checkpoint.pth'
     self.start_epoch = 0
     self.eval = True
