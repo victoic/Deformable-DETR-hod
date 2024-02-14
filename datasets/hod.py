@@ -11,7 +11,6 @@ from torchvision.io import read_image
 import datasets.transforms as T
 from torch.utils.data import Dataset
 from torchvision.datasets.vision import VisionDataset
-from .torchvision_datasets import CocoDetection as TvCocoDetection
 from pathlib import Path
 from pycocotools.coco import COCO
 
@@ -21,11 +20,9 @@ from PIL import Image
 from pathlib import Path
 from util.misc import get_local_rank, get_local_size
 
-class HODataset(TvCocoDetection):
-    def __init__(self, annotations_file, img_dir, coco=False, local_rank=0, local_size=1, transforms=None, cache_mode=False):
-        super(HODataset, self).__init__(img_dir, annotations_file,
-                                            cache_mode=cache_mode, local_rank=local_rank, local_size=local_size)
-        """ self.images_paths = []
+class HODataset(Dataset):
+    def __init__(self, annotations_file, img_dir, coco=False, transforms=None, cache_mode=False):
+        self.images_paths = []
         self.labels = []
         self.coco = COCO(annotations_file)
         for img in self.coco.loadImgs(self.coco.getImgIds()):
@@ -37,23 +34,21 @@ class HODataset(TvCocoDetection):
             self.images_paths.append(img['file_name'])
             self.labels.append(target)
         self.ids = list(sorted(self.coco.imgs.keys()))
-        self.root = img_dir """
+        self.root = img_dir
         self.transforms = transforms
         #self.target_transform = target_transform
         self.prepare = ConvertCocoPolysToMask()
         self.cache_mode = cache_mode
 
-    """ def __len__(self):
-        return len(self.images_paths) """
+    def __len__(self):
+        return len(self.images_paths)
 
     def __getitem__(self, idx):
-        img, target = super(HODataset, self).__getitem__(idx)
         img_id = self.ids[idx]
-        #target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
+        target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
         target = {'image_id': img_id, 'annotations': target}
-        #path = self.coco.loadImgs(img_id)[0]['file_name']
-        #img = self.get_image(path)
-        print(f"IMG {img} TGT {target}")
+        path = self.coco.loadImgs(img_id)[0]['file_name']
+        img = self.get_image(path)
         img, target = self.prepare(img, target)
         if self.transforms is not None:
             img, target = self.transforms(img, target)
