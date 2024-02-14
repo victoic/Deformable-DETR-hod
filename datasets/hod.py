@@ -48,14 +48,10 @@ class HODataset(Dataset):
         target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
         target = {'image_id': img_id, 'annotations': target}
         path = self.coco.loadImgs(img_id)[0]['file_name']
-        print(os.path.join(self.root, path))
         img = self.get_image(path)
         img, target = self.prepare(img, target)
         if self.transforms is not None:
             img, target = self.transforms(img, target)
-
-        print(target)
-
         return img, target
 
     def get_image(self, path):
