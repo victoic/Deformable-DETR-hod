@@ -25,6 +25,83 @@ from datasets import build_dataset, get_coco_api_from_dataset
 from engine import evaluate, train_one_epoch
 from models import build_model
 
+class Args:
+  def __init__(self):
+    self.lr = 2e-4
+    self.lr_backbone_names = ["backbone.0"]
+    self.lr_backbone = 2e-5
+    self.lr_linear_proj_names = ['reference_points', 'sampling_offsets']
+    self.lr_linear_proj_mult = 0.1
+    self.batch_size = 2
+    self.weight_decay = 1e-4
+    self.epochs = 50
+    self.lr_drop = 40
+    self.lr_drop_epochs = None
+    self.clip_max_norm = 0.1
+
+    self.sgd = True
+
+    # Variants of Deformable DETR
+    self.with_box_refine = False
+    self.two_stage = False
+
+    # Model parameters
+    self.frozen_weights = None
+
+    # * Backbone
+    self.backbone = 'resnet50'
+    self.dilation = True
+    self.position_embedding = 'sine'
+    self.position_embedding_scale =  2 * np.pi
+    self.num_feature_levels = 4
+
+    # * Transformer
+    self.enc_layers = 6
+    self.dec_layers = 6
+    self.dim_feedforward = 1024
+    self.hidden_dim = 256
+    self.dropout = 0.1
+    self.nheads = 8
+    self.num_queries = 300
+    self.dec_n_points = 4
+    self.enc_n_points = 4
+
+    # * Segmentation
+    self.masks = False
+
+    # Loss
+    self.aux_loss = False
+
+    # * Matcher
+    self.set_cost_class = 2
+    self.set_cost_bbox = 5
+    self.set_cost_giou = 2
+
+    # * Loss coefficients
+    self.mask_loss_coef = 1
+    self.dice_loss_coef = 1
+    self.cls_loss_coef = 2
+    self.bbox_loss_coef = 5
+    self.giou_loss_coef = 2
+    self.focal_alpha = 0.25
+
+    # dataset parameters
+    self.dataset_file = 'hod'
+    self.dataset_path = './data/hod'
+    self.train_anns = 'hod_anns_coco_train.json'
+    self.val_anns = 'hod_anns_coco_test.json'
+    self.remove_difficult = True
+    self.num_classes = 2
+
+    self.output_dir = '/content/gdrive/Shareddrives/HOD/checkpoints'
+    self.device = 'cuda'
+    self.seed = 42
+    self.resume = '/content/gdrive/Shareddrives/HOD/checkpoints/checkpoint.pth'#''
+    #self.resume = 'checkpoints/r50_deformable_detr-checkpoint.pth'
+    self.start_epoch = 0
+    self.eval = True
+    self.num_workers = 2
+    self.cache_mode = False
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Deformable DETR Detector', add_help=False)
@@ -124,7 +201,6 @@ def get_args_parser():
     parser.add_argument('--cache_mode', default=False, action='store_true', help='whether to cache images on memory')
 
     return parser
-
 
 def main(args):
     utils.init_distributed_mode(args)
@@ -261,7 +337,7 @@ def main(args):
             test_stats, coco_evaluator = evaluate(
                 model, criterion, postprocessors, data_loader_val, base_ds, device, args.output_dir
             )
-    
+
     if args.eval:
         test_stats, coco_evaluator = evaluate(model, criterion, postprocessors,
                                               data_loader_val, base_ds, device, args.output_dir)
@@ -319,9 +395,9 @@ def main(args):
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
 
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser('Deformable DETR training and evaluation script', parents=[get_args_parser()])
-    args = parser.parse_args()
+    args = Args()
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     main(args)
