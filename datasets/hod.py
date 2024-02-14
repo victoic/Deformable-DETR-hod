@@ -25,7 +25,7 @@ class HODataset(TvCocoDetection):
     def __init__(self, annotations_file, img_dir, coco=False, local_rank=0, local_size=1, transforms=None, cache_mode=False):
         super(HODataset, self).__init__(img_dir, annotations_file,
                                             cache_mode=cache_mode, local_rank=local_rank, local_size=local_size)
-        self.images_paths = []
+        """ self.images_paths = []
         self.labels = []
         self.coco = COCO(annotations_file)
         for img in self.coco.loadImgs(self.coco.getImgIds()):
@@ -37,7 +37,7 @@ class HODataset(TvCocoDetection):
             self.images_paths.append(img['file_name'])
             self.labels.append(target)
         self.ids = list(sorted(self.coco.imgs.keys()))
-        self.root = img_dir
+        self.root = img_dir """
         self.transforms = transforms
         #self.target_transform = target_transform
         self.prepare = ConvertCocoPolysToMask()
