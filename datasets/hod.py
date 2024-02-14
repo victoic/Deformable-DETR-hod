@@ -167,5 +167,5 @@ def build(image_set, args):
         "val": (root, root / args.val_anns),
     }
     img_folder, ann_file = PATHS[image_set]
-    dataset = HODataset(ann_file, img_folder, transform=make_hod_transforms(image_set), cache_mode=args.cache_mode)
+    dataset = HODataset(ann_file, img_folder, transforms=make_hod_transforms(image_set), cache_mode=args.cache_mode)
     return dataset
