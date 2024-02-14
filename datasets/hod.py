@@ -21,7 +21,7 @@ from pathlib import Path
 from util.misc import get_local_rank, get_local_size
 
 class HODataset(Dataset):
-    def __init__(self, annotations_file, img_dir, coco=False, transform=None, target_transform=None, cache_mode=False):
+    def __init__(self, annotations_file, img_dir, coco=False, transforms=None, cache_mode=False):
         self.images_paths = []
         self.labels = []
         self.coco = COCO(annotations_file)
@@ -35,8 +35,8 @@ class HODataset(Dataset):
             self.labels.append(target)
         self.ids = list(sorted(self.coco.imgs.keys()))
         self.root = img_dir
-        self.transform = transform
-        self.target_transform = target_transform
+        self.transform = transforms
+        #self.target_transform = target_transform
         self.cache_mode = cache_mode
 
     def __len__(self):
@@ -45,11 +45,12 @@ class HODataset(Dataset):
     def __getitem__(self, idx):
         img_id = self.ids[idx]
         target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
+        print(target)
         path = self.coco.loadImgs(img_id)[0]['file_name']
         print(os.path.join(self.root, path))
         img = self.get_image(path)
-        if self.transform is not None:
-            img, target = self.transform(img, target)
+        if self.transforms is not None:
+            img, target = self.transforms(img, target)
 
         return img, target
 
