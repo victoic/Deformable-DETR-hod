@@ -43,8 +43,8 @@ class HODataset(TvCocoDetection):
         self.prepare = ConvertCocoPolysToMask()
         self.cache_mode = cache_mode
 
-    def __len__(self):
-        return len(self.images_paths)
+    """ def __len__(self):
+        return len(self.images_paths) """
 
     def __getitem__(self, idx):
         img, target = super(HODataset, self).__getitem__(idx)
