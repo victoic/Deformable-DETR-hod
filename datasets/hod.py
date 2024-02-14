@@ -48,8 +48,8 @@ class HODataset(Dataset):
         path = self.coco.loadImgs(img_id)[0]['file_name']
         print(os.path.join(self.root, path))
         img = self.get_image(path)
-        if self.transforms is not None:
-            img, target = self.transforms(img, target)
+        if self.transform is not None:
+            img, target = self.transform(img, target)
 
         return img, target
 
