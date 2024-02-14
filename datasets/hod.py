@@ -37,6 +37,7 @@ class HODataset(Dataset):
         self.root = img_dir
         self.transforms = transforms
         #self.target_transform = target_transform
+        self.prepare = ConvertCocoPolysToMask()
         self.cache_mode = cache_mode
 
     def __len__(self):
@@ -45,10 +46,11 @@ class HODataset(Dataset):
     def __getitem__(self, idx):
         img_id = self.ids[idx]
         target = self.coco.loadAnns(self.coco.getAnnIds(imgIds=img_id))
-        print(target)
+        target = {'image_id': img_id, 'annotations': target}
         path = self.coco.loadImgs(img_id)[0]['file_name']
         print(os.path.join(self.root, path))
         img = self.get_image(path)
+        img, target = self.prepare(img, target)
         if self.transforms is not None:
             img, target = self.transforms(img, target)
 
