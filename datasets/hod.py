@@ -35,7 +35,7 @@ class HODataset(Dataset):
             self.labels.append(target)
         self.ids = list(sorted(self.coco.imgs.keys()))
         self.root = img_dir
-        self.transform = transforms
+        self.transforms = transforms
         #self.target_transform = target_transform
         self.cache_mode = cache_mode
 
