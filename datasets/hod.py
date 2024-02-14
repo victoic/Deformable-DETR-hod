@@ -54,6 +54,7 @@ class HODataset(Dataset):
         return img, target
 
     def get_image(self, path):
+        path = path.replace("\\", '/')
         if self.cache_mode:
             if path not in self.cache.keys():
                 with open(os.path.join(self.root, path), 'rb') as f:
