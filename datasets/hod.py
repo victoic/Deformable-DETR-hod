@@ -54,6 +54,8 @@ class HODataset(Dataset):
         if self.transforms is not None:
             img, target = self.transforms(img, target)
 
+        print(target)
+
         return img, target
 
     def get_image(self, path):
