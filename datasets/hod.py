@@ -34,7 +34,7 @@ class HODataset(Dataset):
             self.images_paths.append(img['file_name'])
             self.labels.append(target)
         self.ids = list(sorted(self.coco.imgs.keys()))
-        self.img_dir = img_dir
+        self.root = img_dir
         self.transform = transform
         self.target_transform = target_transform
 
