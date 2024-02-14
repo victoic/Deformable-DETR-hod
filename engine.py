@@ -105,6 +105,7 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
         outputs = model(samples)
+        print(f"OUT: {outputs}")
         loss_dict = criterion(outputs, targets)
         weight_dict = criterion.weight_dict
 
