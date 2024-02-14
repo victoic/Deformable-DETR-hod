@@ -87,7 +87,7 @@ class Args:
 
     # dataset parameters
     self.dataset_file = 'hod'
-    self.dataset_path = './data/hod'
+    self.dataset_path = './data'
     self.train_anns = 'hod_anns_coco_train.json'
     self.val_anns = 'hod_anns_coco_test.json'
     self.remove_difficult = True
